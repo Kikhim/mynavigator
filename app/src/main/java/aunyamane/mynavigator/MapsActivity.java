@@ -36,6 +36,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -89,6 +90,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.animateCamera(cameraUpdate);
         findDirections(lats, longs,points1,points2,"driving");
         ArrayList<HashMap<String, String>> location = null;
+        ArrayList<HashMap<String, String>> nearby_vehicle = null;
         String url1 = "http://sniperkla.lnw.mn/khim.php";
         try {
             JSONArray data = new JSONArray(getHttpGet(url1));
@@ -96,7 +98,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             location = new ArrayList<HashMap<String, String>>();
             HashMap<String, String> map1;
             for (int i = 0; i < data.length(); i++) {
-                getHttpGet(url_route, c.id);
                 JSONObject c = data.getJSONObject(i);
                 map1 = new HashMap<String, String>();
                 map1.clear();
@@ -111,6 +112,80 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+        /*
+         * Nearby Vehicle
+         */
+        String url_vehicle = "http://sniperkla.lnw.mn/khim_vehicle.php?lat=" + lats + "&lng=" + longs;
+        String url_route   = null;
+        try {
+            JSONArray data = new JSONArray(getHttpGet(url_vehicle));
+            System.out.println(url_vehicle);
+            nearby_vehicle = new ArrayList<HashMap<String, String>>();
+            HashMap<String, String> map1;
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject c = data.getJSONObject(i);
+
+                url_route = "http://sniperkla.lnw.mn/khim_vehicle.php?vid=" + c.getString("id");
+                JSONArray route_data = new JSONArray(getHttpGet(url_route));
+                for (int j = 0; j < route_data.length(); j++) {
+                    JSONObject route_obj = route_data.getJSONObject(i);
+
+                    try {
+                        LatLng fromPosition = new LatLng(Double.valueOf(c.getString("latitude")) , Double.valueOf(c.getString("longitude")));
+
+                        GoogleMapsDirection md = new GoogleMapsDirection();
+                        Document doc = md.getDocument(fromPosition, toPosition, paramMap.get(DIRECTIONS_MODE));
+                        ArrayList<LatLng> directionPoints = md.getDirection(doc);
+
+                        for (int i = 0; i < directionPoints.size(); i++) {
+                            Log.d("TBT", directionPoints.get(i).toString());
+                        }
+                        return directionPoints;
+                    } catch (Exception e) {
+                        exception = e;
+                        return null;
+                    }
+                }
+
+                map1 = new HashMap<String, String>();
+                map1.clear();
+                map1.put("id", c.getString("id"));
+                map1.put("type", c.getString("type"));
+                map1.put("name", c.getString("name"));
+                map1.put("lat", c.getString("latitude"));
+                map1.put("lng", c.getString("longitude"));
+                nearby_vehicle.add(map1);
+            }
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        final HashMap<String, String> markerVehicle = new HashMap<String, String>();
+        final List<Marker> markersVehicleList = new ArrayList<Marker>();
+        String[] vehicle_id = new String[location.size()];
+        final String[] vehicle_a = new String[location.size()];
+
+        for (int i = 0; i < nearby_vehicle.size(); i++) {
+
+            Marker a1 = mMap.addMarker(new MarkerOptions().position(
+                    new LatLng(
+                            latitude = Double.parseDouble(nearby_vehicle.get(i).get("lat").toString()),
+                            longitude = Double.parseDouble(nearby_vehicle.get(i).get("lng").toString()))
+            )
+                    .title(nearby_vehicle.get(i).get("name"))
+                    .snippet(nearby_vehicle.get(i).get("type"))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.marker2)));
+            markersVehicleList.add(a1); //ยัด al แทนที่ markersList
+            vehicle_id[i] = markersVehicleList.get(i).getId();
+            markerVehicle.put(vehicle_id[i], vehicle_a[i]);
+        }
+
+        /*
+         * /nearby vehicle
+         */
+
         final HashMap<String, String> markerMap = new HashMap<String, String>();
         final List<Marker> markersList = new ArrayList<Marker>();
         String[] id = new String[location.size()];
