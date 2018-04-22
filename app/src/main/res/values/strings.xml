@@ -1,0 +1,61 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">My Navigator</string>
+    <string name="plan_x_journey">Plan X Journey</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyC5BfF90liA0hv4uzXZab1paN0U9m6P2j0
+    </string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="button2">Button</string>
+    <string name="button3">Button</string>
+    <string name="title_activity_detail">DetailActivity</string>
+
+
+    <string name="inert_your_location">inert your location</string>
+    <string name="inert_your_vehicle">please chose vehicle</string>
+    <string name="location" tools:ignore="DuplicateDefinition">Location</string>
+    <string name="name">Name</string>
+    <string name="insert_your_string_insert_location">Insert your location</string>
+    <string name="vehicles" tools:ignore="DuplicateDefinition">Vehicles</string>
+    <string name="chose_your_vehicles">Chose your vehicles</string>
+
+    <string name="next">Next</string>
+    <string name="todo">TODO</string>
+    <string name="vehicle">Vehicle</string>
+
+    <string-array name="location">
+        <item>ห้างสรรพสินค้าเซ็นทรัล(เซ็นทรัลเฟสติวัลภูเก็ต)</item>
+        <item>เทสโก้โลตัสสามกอง</item>
+        <item>เกาะเฮ</item>
+        <item>แหลมพรหมเทพ</item>
+        <item>เกาะราชาใหญ่</item>
+        <item>ท่าเรืออ่าวฉลอง</item>
+        <item>หาดราไวย์</item>
+        <item>หหาดในหาน</item>
+        <item>บิ๊กซีภูเก็ต</item>
+        <item>มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตภูเก็ต</item>
+        <item>หาดป่าตอง</item>
+        <item>หาดกะหลิม</item>
+        <item>เกาะโหลน</item>
+        <item>The Big Buddha Phuket</item>
+        <item>วัดฉลอง</item>
+        <item>สำนักงานขนส่งจังหวัดภูเก็ต</item>
+        <item>สะพานหิน</item>
+        <item>สวนสัตว์ภูเก็ต</item>
+        <item>หาดกะรน</item>
+        <item>หาดกะตะ</item>
+        <item>หาดในยาง</item>
+        <item>หาดไม้ขาว</item>
+        <item>วิทยาลัยอาชีวภูเก็ต</item>
+
+
+
+
+    </string-array>
+
+
+</resources>
