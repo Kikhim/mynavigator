@@ -96,6 +96,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             location = new ArrayList<HashMap<String, String>>();
             HashMap<String, String> map1;
             for (int i = 0; i < data.length(); i++) {
+                getHttpGet(url_route, c.id);
                 JSONObject c = data.getJSONObject(i);
                 map1 = new HashMap<String, String>();
                 map1.clear();
