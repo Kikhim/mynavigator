@@ -2,13 +2,19 @@ package aunyamane.mynavigator;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,6 +31,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -49,17 +58,25 @@ import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     GoogleMap mMap;
+    ArrayList<LatLng> markerPoints;
     private Double latitude = 0.00;
     private Double longitude = 0.00;
+
+    ArrayList<Integer> colorList;
+    private Integer line_count = 0;
+
     final List<Polyline> polylines = new ArrayList<Polyline>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+        markerPoints = new ArrayList<LatLng>();
+        colorList = new ArrayList<Integer>();
+        colorList.add(Color.BLUE);
+        colorList.add(Color.GREEN);
+        colorList.add(Color.MAGENTA);
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -77,6 +94,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap map) {
         double points1 = getIntent().getDoubleExtra("apoints1", 0);
         double points2 = getIntent().getDoubleExtra("apoints2", 0);
+
         mMap = map;
         mMap.setMyLocationEnabled(true);
         //////////////////////////////////////////// ปุ่ม UI //////////////////////////////////////////////
@@ -91,6 +109,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         findDirections(lats, longs,points1,points2,"driving");
         ArrayList<HashMap<String, String>> location = null;
         ArrayList<HashMap<String, String>> nearby_vehicle = null;
+
         String url1 = "http://sniperkla.lnw.mn/khim.php";
         try {
             JSONArray data = new JSONArray(getHttpGet(url1));
@@ -118,33 +137,76 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
          */
         String url_vehicle = "http://sniperkla.lnw.mn/khim_vehicle.php?lat=" + lats + "&lng=" + longs;
         String url_route   = null;
+
         try {
             JSONArray data = new JSONArray(getHttpGet(url_vehicle));
-            System.out.println(url_vehicle);
             nearby_vehicle = new ArrayList<HashMap<String, String>>();
             HashMap<String, String> map1;
+            TypedArray ta = getResources().obtainTypedArray(R.array.colors);
+            TypedArray m_hue = getResources().obtainTypedArray(R.array.marker_hue);
+            Integer marker_color;
+
             for (int i = 0; i < data.length(); i++) {
                 JSONObject c = data.getJSONObject(i);
-
-                url_route = "http://sniperkla.lnw.mn/khim_vehicle.php?vid=" + c.getString("id");
+                url_route = "http://sniperkla.lnw.mn/khim_route.php?vid=" + c.getString("id");
+                System.out.println("dept_log_route["+i+"]: "+url_route);
+                marker_color = m_hue.getColor((i%m_hue.length()), 0);
                 JSONArray route_data = new JSONArray(getHttpGet(url_route));
-                for (int j = 0; j < route_data.length(); j++) {
-                    JSONObject route_obj = route_data.getJSONObject(i);
+                if(route_data.length() > 0){
+                    markerPoints.clear();
+                    for (int j = 0; j < route_data.length(); j++) {
+                        JSONObject route_obj = route_data.getJSONObject(j);
+                        LatLng point = new LatLng(
+                                latitude = Double.parseDouble(route_obj.getString("latitude")),
+                                longitude = Double.parseDouble(route_obj.getString("longitude")));
+                        markerPoints.add(point);
 
-                    try {
-                        LatLng fromPosition = new LatLng(Double.valueOf(c.getString("latitude")) , Double.valueOf(c.getString("longitude")));
+                        // Creating MarkerOptions
+                        MarkerOptions options = new MarkerOptions();
 
-                        GoogleMapsDirection md = new GoogleMapsDirection();
-                        Document doc = md.getDocument(fromPosition, toPosition, paramMap.get(DIRECTIONS_MODE));
-                        ArrayList<LatLng> directionPoints = md.getDirection(doc);
+                        // Setting the position of the marker
+                        options.position(point);
 
-                        for (int i = 0; i < directionPoints.size(); i++) {
-                            Log.d("TBT", directionPoints.get(i).toString());
+                        /**
+                         * For the start location, the color of marker is GREEN and
+                         * for the end location, the color of marker is RED and
+                         * for the rest of markers, the color is AZURE
+                         */
+                        if(markerPoints != null) {
+                            options.title(route_obj.getString("name_th"));
+                            options.icon(BitmapDescriptorFactory.defaultMarker(marker_color));
+                            /*
+                            if (markerPoints.size() == 1) {
+                                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                            } else if (markerPoints.size() == 2) {
+                                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                            } else {
+                                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                            }
+                            */
                         }
-                        return directionPoints;
-                    } catch (Exception e) {
-                        exception = e;
-                        return null;
+
+
+                        // Add new marker to the Google Map Android API V2
+                        map.addMarker(options);
+                    }
+
+                    System.out.println("dept_log_markerPoints: " + markerPoints);
+
+                    if(markerPoints != null) {
+                        if (markerPoints.size() >= 2) {
+                            LatLng origin = markerPoints.get(0);
+                            LatLng dest = markerPoints.get(1);
+
+                            // Getting URL to the Google Directions API
+                            String url = getDirectionsUrl(origin, dest);
+
+                            DownloadTask downloadTask = new DownloadTask();
+                            System.out.println("dept_log_direction: " + url);
+                            // Start downloading json data from Google Directions API
+                            downloadTask.execute(url);
+                        }
+                        // line_count++;
                     }
                 }
 
@@ -155,6 +217,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 map1.put("name", c.getString("name"));
                 map1.put("lat", c.getString("latitude"));
                 map1.put("lng", c.getString("longitude"));
+                map1.put("distance", c.getString("distance"));
+
                 nearby_vehicle.add(map1);
             }
         } catch (JSONException e) {
@@ -175,8 +239,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             longitude = Double.parseDouble(nearby_vehicle.get(i).get("lng").toString()))
             )
                     .title(nearby_vehicle.get(i).get("name"))
-                    .snippet(nearby_vehicle.get(i).get("type"))
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.marker2)));
+                    .snippet(nearby_vehicle.get(i).get("type") + ", " + nearby_vehicle.get(i).get("distance") + "Km.")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
             markersVehicleList.add(a1); //ยัด al แทนที่ markersList
             vehicle_id[i] = markersVehicleList.get(i).getId();
             markerVehicle.put(vehicle_id[i], vehicle_a[i]);
@@ -206,12 +270,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         // Add a circle in current
-        Circle circle = map.addCircle(new CircleOptions()
+        Circle circle_start = map.addCircle(new CircleOptions()
                 .center(new LatLng(latitude = lats,
                                    longitude = longs))
                 .radius(500)
                 .strokeColor(0x80ff0000)
                 .fillColor(0x15ff0000));
+
+        // Add a circle in destination
+        Circle circle_dest = map.addCircle(new CircleOptions()
+                .center(new LatLng(latitude = points1,
+                        longitude = points2))
+                .radius(500)
+                .strokeColor(0x80ff0000)
+                .fillColor(0x15ff0000));
+
+
 
         List<Double> x = new ArrayList<Double>();
         List<Double> y = new ArrayList<Double>();
@@ -268,6 +342,190 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.put(AsyncTaskDrawDirection.DIRECTIONS_MODE, mode);
         AsyncTaskDrawDirection asyncTask = new AsyncTaskDrawDirection(this);
         asyncTask.execute(map);
+    }
+
+    private String getDirectionsUrl(LatLng origin,LatLng dest){
+
+        // Origin of route
+        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+
+        // Sensor enabled
+        String sensor = "sensor=false";
+
+        // Waypoints
+        String waypoints = "";
+        for(int i=2;i<markerPoints.size();i++){
+            LatLng point  = (LatLng) markerPoints.get(i);
+            if(i==2)
+                waypoints = "waypoints=";
+            waypoints += point.latitude + "," + point.longitude + "|";
+        }
+
+        // Building the parameters to the web service
+        String map_api_key = getResources().getString(R.string.google_maps_key);
+        map_api_key = "AIzaSyD9TUPq6I1TkQg5daafolxL-8TBJxa7qV8";
+        String parameters = "key="+map_api_key+"&"+str_origin+"&"+str_dest+"&"+sensor+"&"+waypoints;
+
+        // Output format
+        String output = "json";
+
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+
+        return url;
+    }
+
+    /** A method to download json data from url */
+    private String downloadUrl(String strUrl) throws IOException{
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try{
+            URL url = new URL(strUrl);
+
+            // Creating an http connection to communicate with url
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            // Connecting to url
+            urlConnection.connect();
+
+            // Reading data from url
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb  = new StringBuffer();
+
+            String line = "";
+            while( ( line = br.readLine())  != null){
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        }catch(Exception e){
+            Log.d("except downloading url", e.toString());
+        }finally{
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
+    }
+
+    // Fetches data from url passed
+    private class DownloadTask extends AsyncTask<String, Void, String>{
+
+        // Downloading data in non-ui thread
+        @Override
+        protected String doInBackground(String... url) {
+
+            // For storing data from web service
+
+            String data = "";
+
+            try{
+                // Fetching the data from web service
+                data = downloadUrl(url[0]);
+            }catch(Exception e){
+                Log.d("Background Task",e.toString());
+            }
+            return data;
+        }
+
+        // Executes in UI thread, after the execution of
+        // doInBackground()
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            ParserTask parserTask = new ParserTask();
+
+            // Invokes the thread for parsing the JSON data
+            parserTask.execute(result);
+        }
+    }
+
+    /** A class to parse the Google Places in JSON format */
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> >{
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try{
+                jObject = new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+
+                // Starts parsing data
+                routes = parser.parse(jObject);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points = null;
+            PolylineOptions lineOptions = null;
+            Resources res = getResources();
+            TypedArray ta = res.obtainTypedArray(R.array.colors);
+            int[] colors = new int[ta.length()];
+/*
+            for (int i = 0; i < ta.length(); i++) {
+                colors[i] = ta.getColor(i, 0);
+            }
+            ta.recycle();
+            */
+
+            // Traversing through all the routes
+            for(int i=0;i<result.size();i++){
+                points = new ArrayList<LatLng>();
+                lineOptions = new PolylineOptions();
+
+                // Fetching i-th route
+                List<HashMap<String, String>> path = result.get(i);
+
+                // Fetching all the points in i-th route
+                for(int j=0;j<path.size();j++){
+                    HashMap<String,String> point = path.get(j);
+
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
+
+                    points.add(position);
+                }
+
+                // Adding all the points in the route to LineOptions
+                lineOptions.addAll(points);
+                lineOptions.width(12);
+                lineOptions.color(ta.getColor((line_count%ta.length()), 0));
+
+            }
+
+            // Drawing polyline in the Google Map for the i-th route
+            System.out.println("dept_log_line_count: " + line_count);
+            if(lineOptions != null) {
+                mMap.addPolyline(lineOptions);
+                line_count++;
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        // getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 }
 

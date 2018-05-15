@@ -1,10 +1,10 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     tools:context=".MapsActivity">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.MapFragment"
@@ -12,5 +12,92 @@
         android:layout_height="match_parent"
         tools:context="com.example.polygons.PolyActivity"/>
 
+     <LinearLayout
+         android:id="@+id/route_label"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:background="#99ffffff"
+         android:orientation="vertical"
+         android:padding="5dp">
 
-</RelativeLayout>
+         <LinearLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="left"
+             android:gravity="left|center_vertical"
+             android:orientation="horizontal">
+
+             <Button
+                 android:id="@+id/button5"
+                 android:layout_width="30dp"
+                 android:layout_height="6dp"
+                 android:layout_margin="5dp"
+                 android:layout_weight="1"
+                 android:background="@android:color/holo_red_light" />
+
+             <TextView
+                 android:id="@+id/textView26"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_weight="1"
+                 android:text="Direction"
+                 android:textColor="@color/common_google_signin_btn_text_light_pressed"
+                 android:textSize="12sp" />
+
+         </LinearLayout>
+
+         <LinearLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="left"
+             android:gravity="left|center_vertical"
+             android:orientation="horizontal">
+
+             <Button
+                 android:id="@+id/button5"
+                 android:layout_width="30dp"
+                 android:layout_height="6dp"
+                 android:layout_margin="5dp"
+                 android:layout_weight="1"
+                 android:background="#29d116" />
+
+             <TextView
+                 android:id="@+id/textView26"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_weight="1"
+                 android:text="Motorcycle 1"
+                 android:textColor="@color/common_google_signin_btn_text_light_pressed"
+                 android:textSize="12sp" />
+
+         </LinearLayout>
+
+         <LinearLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="left"
+             android:gravity="left|center_vertical"
+             android:orientation="horizontal">
+
+             <Button
+                 android:id="@+id/button5"
+                 android:layout_width="30dp"
+                 android:layout_height="6dp"
+                 android:layout_margin="5dp"
+                 android:layout_weight="1"
+                 android:background="#1629d1" />
+
+             <TextView
+                 android:id="@+id/textView26"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_weight="1"
+                 android:text="Phothong 1"
+                 android:textColor="@color/common_google_signin_btn_text_light_pressed"
+                 android:textSize="12sp" />
+
+         </LinearLayout>
+
+     </LinearLayout>
+
+ </RelativeLayout>

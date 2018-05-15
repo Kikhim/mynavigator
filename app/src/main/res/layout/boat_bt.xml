@@ -19,7 +19,7 @@
         android:id="@+id/button1"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="ท่าเทียบเรืออ่าวฉลอง"
+        android:text="ท่าเทียบเรืออ่าวฉลอง (Chalong Pier)"
         android:textAlignment="center"
         android:textStyle="bold"
         tools:ignore="HardcodedText" />
@@ -28,7 +28,7 @@
         android:id="@+id/button2"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="ท่าเทียบเรือซีแองเจิล"
+        android:text="ท่าเทียบเรือซีแองเจิล                 (Sea Angle Pier)"
         android:textAlignment="center"
         android:textStyle="bold"
         tools:ignore="HardcodedText" />
@@ -37,7 +37,7 @@
         android:id="@+id/button3"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="ท่าเทียบเรือรัษฎา"
+        android:text="ท่าเทียบเรือรัษฎา (Rassada Pier)"
         android:textStyle="bold"
         android:textAlignment="center"
         tools:ignore="HardcodedText" />

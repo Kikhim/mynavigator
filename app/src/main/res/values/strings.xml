@@ -2,8 +2,10 @@
     <string name="app_name">My Navigator</string>
     <string name="plan_x_journey">Plan X Journey</string>
     <string name="title_activity_maps">Map</string>
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyC5BfF90liA0hv4uzXZab1paN0U9m6P2j0
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyD9TUPq6I1TkQg5daafolxL-8TBJxa7qV8
     </string>
+
     <string name="title_activity_main2">Main2Activity</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -56,6 +58,18 @@
 
 
     </string-array>
+    <array name="marker_hue">
+        <item format="float">210</item>
+        <item format="float">240</item>
+        <item format="float">180</item>
+        <item format="float">120</item>
+        <item format="float">300</item>
+        <item format="float">30</item>
+        <item format="float">0</item>
+        <item format="float">330</item>
+        <item format="float">270</item>
+        <item format="float">60</item>
+    </array>
 
 
 </resources>

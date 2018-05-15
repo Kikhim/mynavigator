@@ -54,6 +54,10 @@
         <activity android:name=".SchedulePhoThong1"/>
         <activity android:name=".SchedulePhoThong2"/>
         <activity android:name=".SchedulePhoThong3"/>
+        <activity android:name=".LinkChalong"/>
+        <activity android:name=".LinkSeaangle"/>
+        <activity android:name=".LinkRassada"/>
+
 
     </application>
 
